@@ -180,59 +180,6 @@
       text-shadow: 0 1px 0 rgba(255,255,255,.5);
     }
 
-
-    .modal-header-left {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      min-width: 0;
-    }
-
-    .title-audio-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .audio-controls {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .audio-controls button {
-      background: rgba(90, 70, 49, 0.82);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      padding: 8px 12px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background .18s ease, transform .18s ease;
-    }
-
-    .audio-controls button:hover {
-      background: #a8825a;
-      transform: translateY(-1px);
-    }
-
-    .audio-controls button.active {
-      background: #b43c2d;
-    }
-
-    @media (max-width: 980px) {
-      .title-audio-row {
-        align-items: flex-start;
-      }
-
-      .audio-controls button {
-        font-size: 14px;
-        padding: 8px 10px;
-      }
-    }
-
     .close-btn {
       background: rgba(90, 70, 49, 0.82);
       color: white;
@@ -428,15 +375,9 @@
   <div class="modal-backdrop" id="modalBackdrop">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
       <div class="modal-top">
-        <div class="modal-header-left">
+        <div>
           <div class="tag" id="modalTag">Ambiente del castello</div>
-          <div class="title-audio-row">
-            <h2 id="modalTitle">Titolo</h2>
-            <div class="audio-controls">
-              <button id="audioTesto" type="button" aria-label="Ascolta il testo della finestra" title="Ascolta il testo della finestra">🔊 Testo</button>
-              <button id="audioPersonaggi" type="button" aria-label="Ascolta i personaggi" title="Ascolta i personaggi">🔊 Personaggi</button>
-            </div>
-          </div>
+          <h2 id="modalTitle">Titolo</h2>
         </div>
         <button class="close-btn" id="closeModal">Chiudi</button>
       </div>
@@ -610,93 +551,6 @@ contiene sempre un POZZO per avere sempre acqua. Ci sono botteghe e stalle`
     const backLabel = document.querySelector('#cardBack .face-label');
     const textBox = document.getElementById('textBox');
 
-
-    let audioTesto = new Audio();
-    let audioPersonaggi = new Audio();
-    let currentAudio = null;
-
-    const audioMap = {
-      cappella: {
-        testo: "cappella_testo.mp3",
-        personaggi: "cappella_personaggi.mp3"
-      },
-      mura: {
-        testo: "mura_testo.mp3",
-        personaggi: "mura_personaggi.mp3"
-      },
-      magazzino: {
-        testo: "magazzino_testo.mp3",
-        personaggi: "magazzino_personaggi.mp3"
-      },
-      mastio: {
-        testo: "mastio_testo.mp3",
-        personaggi: "mastio_personaggi.mp3"
-      },
-      salaGrande: {
-        testo: "sala_testo.mp3",
-        personaggi: "sala_personaggi.mp3"
-      },
-      cortile: {
-        testo: "cotile_testo.mp3",
-        personaggi: "cortile_personaggi.mp3"
-      }
-    };
-
-    const btnTesto = document.getElementById('audioTesto');
-    const btnPersonaggi = document.getElementById('audioPersonaggi');
-
-    function resetAudioButtons() {
-      btnTesto.classList.remove('active');
-      btnPersonaggi.classList.remove('active');
-      currentAudio = null;
-    }
-
-    function stopAllAudio() {
-      audioTesto.pause();
-      audioTesto.currentTime = 0;
-      audioPersonaggi.pause();
-      audioPersonaggi.currentTime = 0;
-      resetAudioButtons();
-    }
-
-    function playSelectedAudio(type) {
-      if (!currentKey || !audioMap[currentKey]) return;
-
-      const file = audioMap[currentKey][type];
-      if (!file) return;
-
-      if (currentAudio === type) {
-        stopAllAudio();
-        return;
-      }
-
-      stopAllAudio();
-
-      const targetAudio = type === 'testo' ? audioTesto : audioPersonaggi;
-      const targetButton = type === 'testo' ? btnTesto : btnPersonaggi;
-
-      targetAudio.src = file;
-      targetAudio.load();
-
-      const playPromise = targetAudio.play();
-      if (playPromise !== undefined) {
-        playPromise.then(() => {
-          targetButton.classList.add('active');
-          currentAudio = type;
-        }).catch((err) => {
-          console.error('Errore audio:', err);
-          alert('Audio non trovato o non caricato. Controlla che il file MP3 sia nella stessa cartella dell\'HTML.');
-          stopAllAudio();
-        });
-      }
-    }
-
-    btnTesto.addEventListener('click', () => playSelectedAudio('testo'));
-    btnPersonaggi.addEventListener('click', () => playSelectedAudio('personaggi'));
-
-    audioTesto.addEventListener('ended', resetAudioButtons);
-    audioPersonaggi.addEventListener('ended', resetAudioButtons);
-
     const savedTexts = {};
     let currentKey = null;
 
@@ -745,7 +599,6 @@ contiene sempre un POZZO per avere sempre acqua. Ci sono botteghe e stalle`
       const item = locations[key];
       if (!item) return;
 
-      stopAllAudio();
       currentKey = key;
 
       const rect = viewer.getBoundingClientRect();
@@ -788,14 +641,14 @@ contiene sempre un POZZO per avere sempre acqua. Ci sono botteghe e stalle`
       if (!dragMoved) flipCard.classList.toggle('flipped');
     });
 
-    closeModal.addEventListener('click', () => { stopAllAudio(); modalBackdrop.classList.remove('show'); });
+    closeModal.addEventListener('click', () => modalBackdrop.classList.remove('show'));
     modalBackdrop.addEventListener('click', (e) => {
-      if (e.target === modalBackdrop) { stopAllAudio(); modalBackdrop.classList.remove('show'); }
+      if (e.target === modalBackdrop) modalBackdrop.classList.remove('show');
     });
-    resetView.addEventListener('click', () => { stopAllAudio(); resetScene(); });
+    resetView.addEventListener('click', resetScene);
 
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') { stopAllAudio(); modalBackdrop.classList.remove('show'); }
+      if (e.key === 'Escape') modalBackdrop.classList.remove('show');
     });
 
     scene.addEventListener('mousedown', (e) => {
